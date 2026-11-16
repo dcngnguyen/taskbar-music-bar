@@ -44,6 +44,7 @@ public partial class BarWindow : Window
         InitializeComponent();
         _hwnd = new WindowInteropHelper(this).EnsureHandle();
         Native.MakeToolWindow(_hwnd, noActivate: true);
+        HoverGlow.Attach(Bar, Cover);
 
         _settings = Settings.Load();
         _barWidth = Math.Clamp(_settings.BarWidth, MinBarWidth, MaxBarWidth);

@@ -5,7 +5,7 @@
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
         FontFamily="{StaticResource TextFont}">
-  <Border Background="{StaticResource Surface}" BorderBrush="{StaticResource Stroke}"
+  <Border x:Name="Bar" Background="{StaticResource Surface}" BorderBrush="{StaticResource Stroke}"
           BorderThickness="1" CornerRadius="6" MouseWheel="Bar_MouseWheel"
           MouseUp="Bar_MouseUp">
     <Border.ContextMenu>
