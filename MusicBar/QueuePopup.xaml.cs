@@ -94,15 +94,15 @@ public partial class QueuePopup : Window
     /// <summary>Shown and not on its way out.</summary>
     public bool IsOpen => IsVisible && !_closing;
 
-    /// <summary>Opens so the popup's bottom-right corner sits at the given point (in screen DIPs).</summary>
-    public void ShowAbove(double right, double bottom)
+    /// <summary>Opens centered on <paramref name="centerX"/> with its bottom edge at <paramref name="bottom"/> (screen DIPs).</summary>
+    public void ShowAbove(double centerX, double bottom)
     {
         bool fresh = !IsVisible;
         _closing = false;
         _animationVersion++;
         if (fresh)
         {
-            Left = right - Width;
+            Left = centerX - Width / 2;
             Top = bottom - Height;
             Show(); // not activated, so hovering never takes keyboard focus from what you're doing
         }

@@ -563,7 +563,7 @@ public partial class BarWindow : Window
     private void OpenPopup()
     {
         if (!Native.GetWindowRect(_hwnd, out var bar)) return;
-        _popup.ShowAbove(bar.Right / _scale, bar.Top / _scale - PopupGap);
+        _popup.ShowAbove((bar.Left + bar.Right) / 2.0 / _scale, bar.Top / _scale - PopupGap);
     }
 
     /// <summary>
