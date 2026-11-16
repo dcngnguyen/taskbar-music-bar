@@ -355,7 +355,7 @@ public partial class BarWindow : Window
 
     // ---------- Volume with the mouse wheel ----------
 
-    /// <summary>Scroll over the bar to change Spotify's volume in steps of 5%.</summary>
+    /// <summary>Scroll over the bar to change Spotify's volume in steps of 1%.</summary>
     private async void Bar_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
     {
         e.Handled = true;
@@ -395,7 +395,7 @@ public partial class BarWindow : Window
             }
         }
 
-        ShowVolume(Math.Clamp(_volume.Value + Math.Sign(e.Delta) * 5, 0, 100));
+        ShowVolume(Math.Clamp(_volume.Value + Math.Sign(e.Delta), 0, 100));
         _settings.MutedVolume = null; // scrolling replaces any earlier mute
         // Wait until scrolling pauses, then send one change (Spotify limits how often apps can call it).
         _volumeSend.Stop();
