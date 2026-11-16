@@ -1,0 +1,188 @@
+<Window x:Class="MusicBar.QueuePopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Music Bar list" Width="340" Height="440"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True" ShowActivated="False"
+        FontFamily="{StaticResource TextFont}" Foreground="{StaticResource TextPrimary}">
+  <Border x:Name="Root" Background="{StaticResource Surface}" BorderBrush="{StaticResource Stroke}"
+          BorderThickness="1" CornerRadius="8">
+    <Border.RenderTransform>
+      <TranslateTransform x:Name="RootShift" />
+    </Border.RenderTransform>
+    <Grid Margin="0,12,0,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <Grid Margin="16,0,10,8">
+        <!-- Click the name to switch to another of your playlists -->
+        <Button x:Name="HeaderButton" Style="{StaticResource SubtleButton}" Foreground="{StaticResource TextPrimary}"
+                Padding="6,3" Margin="-6,0,36,0" HorizontalAlignment="Left" Click="Header_Click">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock x:Name="HeaderText" Text="Up next" FontSize="14" FontWeight="SemiBold"
+                       TextTrimming="CharacterEllipsis" MaxWidth="230" VerticalAlignment="Center" />
+            <TextBlock Text="&#xE70D;" FontFamily="{StaticResource IconFont}" FontSize="10" Margin="8,2,0,0"
+                       Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+          </StackPanel>
+        </Button>
+        <Button x:Name="SortButton" HorizontalAlignment="Right" Style="{StaticResource IconButton}" Content="&#xE8CB;"
+                FontSize="13" Height="26" Visibility="Collapsed" Click="Sort_Click" />
+      </Grid>
+
+      <!-- Connected: the playlist, album, or Spotify queue -->
+      <Grid x:Name="ListPanel" Grid.Row="1" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+          <!-- Search: type to filter the list -->
+          <Grid Margin="16,0,16,8">
+            <TextBox x:Name="SearchBox" Style="{StaticResource DarkTextBox}" Padding="26,4,6,4"
+                     TextChanged="Search_TextChanged" />
+            <TextBlock Text="&#xE721;" FontFamily="{StaticResource IconFont}" FontSize="12" IsHitTestVisible="False"
+                       Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="9,0,0,0" />
+            <TextBlock x:Name="SearchHint" Text="Search" FontSize="12" IsHitTestVisible="False"
+                       Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" Margin="29,0,0,0" />
+          </Grid>
+          <TextBlock x:Name="ListMessage" Margin="16,0,16,8" TextWrapping="Wrap" FontSize="12"
+                     Foreground="{StaticResource Error}" Visibility="Collapsed" />
+        </StackPanel>
+
+        <ListBox x:Name="TrackList" Grid.Row="1" Background="Transparent" BorderThickness="0" Focusable="False"
+                 Foreground="{StaticResource TextPrimary}"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                 VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.ScrollUnit="Pixel">
+          <ListBox.ItemContainerStyle>
+            <Style TargetType="ListBoxItem">
+              <Setter Property="Focusable" Value="False" />
+              <Setter Property="Template">
+                <Setter.Value>
+                  <ControlTemplate TargetType="ListBoxItem">
+                    <ContentPresenter />
+                  </ControlTemplate>
+                </Setter.Value>
+              </Setter>
+            </Style>
+          </ListBox.ItemContainerStyle>
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <Border x:Name="Row" Height="50" Margin="6,0,6,0" CornerRadius="4" Background="Transparent"
+                      Cursor="Hand" MouseLeftButtonUp="Row_Click">
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                  </Grid.ColumnDefinitions>
+                  <!-- Background layers: the playing song, and a hover highlight that fades in and out -->
+                  <Border x:Name="CurrentLayer" Grid.ColumnSpan="3" CornerRadius="4" Background="{StaticResource Pressed}"
+                          Visibility="Collapsed" />
+                  <Border x:Name="HoverLayer" Grid.ColumnSpan="3" CornerRadius="4" Background="{StaticResource Hover}"
+                          Opacity="0" />
+                  <Border Width="40" Height="40" CornerRadius="4" Margin="10,0,10,0" Background="{StaticResource Hover}">
+                    <Image Source="{Binding ImageUrl, TargetNullValue={x:Null}}" Width="40" Height="40" Stretch="UniformToFill">
+                      <Image.Clip>
+                        <RectangleGeometry Rect="0,0,40,40" RadiusX="4" RadiusY="4" />
+                      </Image.Clip>
+                    </Image>
+                  </Border>
+                  <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,6,0">
+                    <TextBlock x:Name="TitleText" Text="{Binding Title}" FontSize="13" TextTrimming="CharacterEllipsis" />
+                    <TextBlock Text="{Binding Subtitle}" FontSize="12" Foreground="{StaticResource TextSecondary}"
+                               TextTrimming="CharacterEllipsis" />
+                  </StackPanel>
+                  <!-- "Add to queue": a plus with list lines, like Spotify's icon -->
+                  <Border x:Name="QueueHolder" Grid.Column="2" Margin="0,0,6,0" Opacity="0" IsHitTestVisible="False">
+                    <Button Style="{StaticResource IconButton}" IsEnabled="{Binding CanQueue, Mode=OneTime}"
+                            Click="AddToQueue_Click">
+                      <Path Width="16" Height="16" StrokeThickness="1.4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                            Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                            Data="M4,1.5 V7.5 M1,4.5 H7 M10,4.5 H15 M1,9.5 H15 M1,14.5 H15" />
+                    </Button>
+                  </Border>
+                </Grid>
+              </Border>
+              <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                  <Setter TargetName="TitleText" Property="Foreground" Value="{StaticResource Accent}" />
+                  <Setter TargetName="CurrentLayer" Property="Visibility" Value="Visible" />
+                </DataTrigger>
+                <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                  <Setter TargetName="QueueHolder" Property="IsHitTestVisible" Value="True" />
+                  <Trigger.EnterActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="HoverLayer" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12" />
+                        <DoubleAnimation Storyboard.TargetName="QueueHolder" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.12" />
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="HoverLayer" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
+                        <DoubleAnimation Storyboard.TargetName="QueueHolder" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </DataTemplate.Triggers>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <TextBlock x:Name="EmptyText" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
+                   FontSize="12" Foreground="{StaticResource TextSecondary}" />
+
+        <Grid Grid.Row="2" Margin="16,6,10,0">
+          <TextBlock x:Name="StatusText" VerticalAlignment="Center" FontSize="12"
+                     Foreground="{StaticResource TextSecondary}" TextTrimming="CharacterEllipsis" Margin="0,0,130,0" />
+          <Button HorizontalAlignment="Right" Style="{StaticResource SubtleButton}"
+                  Content="Disconnect Spotify" Click="Disconnect_Click" />
+        </Grid>
+      </Grid>
+
+      <!-- Not connected: one-time setup -->
+      <ScrollViewer x:Name="SetupView" Grid.Row="1" VerticalScrollBarVisibility="Auto" Visibility="Collapsed">
+        <StackPanel Margin="16,0,16,8">
+          <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource TextSecondary}"
+                     Text="To see and play your songs here, connect Spotify once:" />
+          <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,10,0,0">
+            <Run Text="1. Open the" />
+            <Hyperlink Click="Dashboard_Click" Foreground="{StaticResource Accent}">Spotify developer dashboard</Hyperlink>
+            <Run Text="and create an app (any name)." />
+          </TextBlock>
+          <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,8,0,0"
+                     Text="2. Paste this as the Redirect URI, and tick Web API:" />
+          <Grid Margin="0,4,0,0">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="RedirectBox" Style="{StaticResource DarkTextBox}" IsReadOnly="True" />
+            <Button Grid.Column="1" Style="{StaticResource SubtleButton}" Content="Copy" Margin="4,0,0,0"
+                    Click="CopyRedirect_Click" />
+          </Grid>
+          <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,8,0,0"
+                     Text="3. Save, then copy the app's Client ID and paste it here:" />
+          <TextBox x:Name="ClientIdBox" Style="{StaticResource DarkTextBox}" Margin="0,4,0,0" />
+          <TextBlock x:Name="SetupMessage" TextWrapping="Wrap" FontSize="12" Margin="0,8,0,0"
+                     Foreground="{StaticResource Error}" Visibility="Collapsed" />
+          <Button Style="{StaticResource AccentButton}" Content="Connect" HorizontalAlignment="Left"
+                  Margin="0,10,0,0" Click="Connect_Click" />
+        </StackPanel>
+      </ScrollViewer>
+
+      <!-- Waiting for the browser -->
+      <StackPanel x:Name="ConnectingView" Grid.Row="1" Margin="16,0" Visibility="Collapsed">
+        <TextBlock TextWrapping="Wrap" FontSize="12" Foreground="{StaticResource TextSecondary}"
+                   Text="Approve Music Bar in the browser tab that just opened. You have 3 minutes. If Spotify shows an error page instead, check the Client ID and Redirect URI, then press Cancel." />
+        <Button Style="{StaticResource SubtleButton}" Content="Cancel" HorizontalAlignment="Left"
+                Margin="-10,10,0,0" Click="CancelConnect_Click" />
+      </StackPanel>
+    </Grid>
+  </Border>
+</Window>
