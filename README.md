@@ -47,9 +47,10 @@ Your login is kept in Windows Credential Manager (entry `MusicBar.Spotify`). No 
 ## Quit, turn off auto-start, uninstall
 
 - Quit: right-click the bar and choose **Quit Music Bar**.
-- Stop it starting with Windows: Task Manager, Startup apps, disable **MusicBar**.
+- Stop it starting with Windows: open Task Scheduler, click Task Scheduler Library, right-click **MusicBar**, choose Disable.
+  (It uses a sign-in task instead of Task Manager's Startup apps, because that list starts apps one by one and left the bar minutes late.)
 - Uninstall: quit it, delete `%LOCALAPPDATA%\Programs\MusicBar` and `%APPDATA%\MusicBar`, then run
-  `Remove-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Run -Name MusicBar`.
+  `Unregister-ScheduledTask -TaskName MusicBar -Confirm:$false`.
 
 ## Notes
 
