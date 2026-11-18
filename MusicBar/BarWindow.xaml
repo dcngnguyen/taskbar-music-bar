@@ -29,8 +29,8 @@
         <Rectangle Width="2" Height="16" RadiusX="1" RadiusY="1" Fill="#40FFFFFF" HorizontalAlignment="Center" />
       </Border>
 
-      <!-- Hovering over the cover and song text opens the queue window -->
-      <Grid x:Name="HoverZone" Grid.Column="1" Background="Transparent">
+      <!-- Hovering over the cover and song text opens the queue window; clicking it opens Spotify -->
+      <Grid x:Name="HoverZone" Grid.Column="1" Background="Transparent" MouseLeftButtonUp="HoverZone_Click">
         <Grid.RenderTransform>
           <TranslateTransform x:Name="SongShift" />
         </Grid.RenderTransform>

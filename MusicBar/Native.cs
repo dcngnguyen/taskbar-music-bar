@@ -52,6 +52,20 @@ internal static class Native
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool SetForegroundWindow(IntPtr hWnd);
 
+    public const int SW_MINIMIZE = 6;
+    public const int SW_RESTORE = 9;
+
+    [DllImport("user32.dll")]
+    public static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsIconic(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool ShowWindow(IntPtr hWnd, int cmd);
+
     [StructLayout(LayoutKind.Sequential)]
     public struct POINT { public int X, Y; }
 

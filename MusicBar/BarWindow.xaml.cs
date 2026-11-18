@@ -561,6 +561,44 @@ public partial class BarWindow : Window
         catch (Exception ex) { Log.Write("Media command failed: " + ex.Message); }
     }
 
+    /// <summary>
+    /// Clicking the cover or song text works like Spotify's own taskbar icon: it brings Spotify to the front,
+    /// minimizes it if it's already in front, and starts it if it isn't running.
+    /// </summary>
+    private void HoverZone_Click(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+        _openDelay.Stop();
+        if (_popup.IsOpen) _popup.HideAnimated(); // the queue window would cover Spotify
+        try
+        {
+            var window = IntPtr.Zero;
+            foreach (var p in System.Diagnostics.Process.GetProcessesByName("Spotify"))
+            {
+                using (p) if (window == IntPtr.Zero) window = p.MainWindowHandle;
+            }
+
+            if (window == IntPtr.Zero)
+            {
+                // Not running, or closed to the tray: the spotify: link starts it or shows its window.
+                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("spotify:") { UseShellExecute = true });
+            }
+            else if (window == Native.GetForegroundWindow())
+            {
+                Native.ShowWindow(window, Native.SW_MINIMIZE);
+            }
+            else
+            {
+                if (Native.IsIconic(window)) Native.ShowWindow(window, Native.SW_RESTORE);
+                Native.SetForegroundWindow(window);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.Write("Could not open Spotify: " + ex.Message);
+        }
+    }
+
     private void OpenPopup()
     {
         if (!Native.GetWindowRect(_hwnd, out var bar)) return;

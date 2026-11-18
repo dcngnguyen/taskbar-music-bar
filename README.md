@@ -6,6 +6,7 @@ On the bar:
 
 - The song, artist and album cover, with previous, play/pause and next buttons.
 - A green line along the bottom shows how far into the song you are. Click or drag it to jump.
+- Click the cover or song text to open Spotify, like its taskbar icon (click again to minimize it).
 - Scroll over the bar to change Spotify's volume.
 - Drag the thin line at the left edge to make the bar wider or narrower.
 - Works with Spotify first, and with any other player that shows up in the Windows volume flyout.
